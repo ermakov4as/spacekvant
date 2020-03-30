@@ -1,18 +1,23 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <h1>Робот-Луноход</h1>
+    <v-btn class="ma-2" outlined color="indigo" v-if="!connect.devModeFlag" @click="devMode()">Включить режим разработки</v-btn>
+    <v-btn class="ma-2" outlined color="error" v-else @click="devMode()">Отключить режим разработки</v-btn>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue';
-
 export default {
-  name: 'Home',
-  components: {
-    HelloWorld,
-  },
-};
+  methods: {
+    devMode () {
+      if (!this.connect.devModeFlag && !this.connect.isConnected) {
+        this.connect.isConnected = true
+        this.connect.devModeFlag = true
+      } else if (this.connect.devModeFlag) {
+        this.connect.devModeFlag = false
+        if (this.connect.isConnected) this.connect.isConnected = false
+      }
+    }
+  }
+}
 </script>
