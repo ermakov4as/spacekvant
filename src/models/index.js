@@ -1,5 +1,9 @@
-import Connect from './Connect'
-import LED from './LED'
-import Motors from './Motors'
+import Algor from './Algor'
+import Pole from './Pole'
+import User from './User'
+import Voln from './Algoritms/Voln'
+import Poten from './Algoritms/Poten'
+import DeikAstar from './Algoritms/DeikAstar'
+import Alert from './Alert'
 
-export { Connect, LED, Motors }
+export { Algor, Pole, User, Voln, Poten, DeikAstar, Alert }

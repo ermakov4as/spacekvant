@@ -1,5 +1,11 @@
 <template>
-  <div class="spacekvant">
-    <h1>Начать большой сайт можно и как часть существующего)</h1>
+  <div>
+    <template v-if="user.isReg">
+      <h1>Spacekvant</h1>
+    </template>
+
+    <template v-else>
+      <h3>Просмотр доступен только зарегистрированным пользователям</h3>
+    </template>
   </div>
 </template>

@@ -1,4 +1,4 @@
-# spacekvant
+# lr_algor
 
 ## Project setup
 ```

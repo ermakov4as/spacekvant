@@ -1,36 +1,46 @@
 <template>
-  <v-app>
+  <v-app id="app">
     <v-app-bar app>
-      <div id="nav">
-        <router-link to="/">Главная</router-link> |
-        <router-link to="/robot">Управление роботом</router-link> |
-        <router-link to="/spacekvant">Spacekvant</router-link>
-        <label v-if="connect.devModeFlag" class="dev-mode-flag">РЕЖИМ РАЗРАБОТКИ</label>
-      </div>
+      <Header></Header>
     </v-app-bar>
     <v-content>
+      <ModalAuth></ModalAuth>
+      <Authors></Authors>
       <router-view/>
     </v-content>
   </v-app>
 </template>
 
 <script>
+import ModalAuth from '@/components/Modal/ModalAuth'
+import Authors from '@/components/Modal/Authors'
+import Alert from '@/components/Modal/Alert'
+import Header from '@/components/Header/Header'
+
 export default {
-  name: 'App'
+  name: 'app',
+  components: {
+    ModalAuth,
+    Authors,
+    Header,
+    Alert
+  },
+  created() {
+    this.user.initUser()
+  }
 }
 </script>
 
 <style>
-.lune {
-  background: url('./assets/lune_v2.png')!important;
-}
-</style>
-
-<style scoped>
-.dev-mode-flag {
-  color: red;
-  padding-left: 500px;
-  margin-right: 50px;
-  margin-left: auto;
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* text-align: center; */
+  color: #2c3e50;
+  margin-top: 30px;
+  margin-left: 30px;
+  /* background: url('./assets/sm7-31m.jpg') center; */
+  /* background-repeat: no-repeat; */
 }
 </style>
