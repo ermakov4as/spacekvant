@@ -10,7 +10,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Notifications from 'vue-notification'
 import VueGlobalVar from 'vue-global-var'
+import vuetify from './plugins/vuetify'
 import { Algor, Pole, User, Voln, Poten, DeikAstar, Alert } from '@/models'
+
 Vue.use(VueGlobalVar, {
   globals: {
     algor: Algor,
@@ -37,7 +39,6 @@ Vue.use(VueGlobalVar, {
     }
   }
 })
-import vuetify from './plugins/vuetify'
 
 Vue.use(BootstrapVue)
 Vue.use(Notifications)
