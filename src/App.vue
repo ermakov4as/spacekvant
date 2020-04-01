@@ -1,11 +1,12 @@
 <template>
   <v-app id="app">
     <v-app-bar app>
-      <Header></Header>
+      <Header />
     </v-app-bar>
     <v-content>
-      <ModalAuth></ModalAuth>
-      <Authors></Authors>
+      <ModalAuth />
+      <Authors />
+      <Alert />
       <router-view/>
     </v-content>
   </v-app>

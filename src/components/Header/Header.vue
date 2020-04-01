@@ -1,5 +1,5 @@
 <template>
-  <b-row>
+  <b-row class="headerRow">
     <b-col cols="8">
       <router-link to="/">Главная</router-link> |
       <router-link to="/algoritm">Алгоритмы</router-link> |
@@ -19,6 +19,9 @@
 </template>
 
 <style scoped>
+.headerRow {
+  width: 100%
+}
 .logout {
   margin-left: auto;
   margin-right: 10px;
