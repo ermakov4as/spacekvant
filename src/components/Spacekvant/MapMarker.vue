@@ -19,13 +19,13 @@ export default {
         layout: 'default#imageWithContent',
         imageHref: 'https://www.roskvantorium.ru/upload/iblock/028/%D0%BA%D0%BE%D1%81%D0%BC%D0%BE.png',
         imageSize: [40, 40],
-        imageOffset: [0, 0]
+        imageOffset: [-20, -20]
       },
       markerIconSk: {
         layout: 'default#imageWithContent',
         imageHref: 'https://www.roskvantorium.ru/upload/iblock/028/%D0%BA%D0%BE%D1%81%D0%BC%D0%BE.png',
-        imageSize: [55, 55],
-        imageOffset: [0, 0]
+        imageSize: [56, 56],
+        imageOffset: [-28, -28]
       }
     }
   },

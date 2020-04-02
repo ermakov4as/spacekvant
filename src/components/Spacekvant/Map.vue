@@ -19,6 +19,7 @@ import kvantData from '@/utils/kvantData'
 export default {
   data() {
     return {
+      minWidthForNormalZoom: 1500,
       kvantMapData: [],
       mapCenterCoords: [52.714468, 90.713384],
       zoom: 4,
@@ -36,6 +37,9 @@ export default {
   },
   created() {
     this.kvantMapData = kvantData
+    if (document.documentElement.clientWidth < this.minWidthForNormalZoom) {
+      this.zoom = 3;
+    }
   }
 }
 </script>
