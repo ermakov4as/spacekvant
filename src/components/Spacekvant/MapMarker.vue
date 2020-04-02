@@ -14,6 +14,7 @@ export default {
   props: ['kvant'],
   data() {
     return {
+      coords: [54, 54],
       markerIcon: {
         layout: 'default#imageWithContent',
         imageHref: 'https://www.roskvantorium.ru/upload/iblock/028/%D0%BA%D0%BE%D1%81%D0%BC%D0%BE.png',
@@ -30,13 +31,13 @@ export default {
   },
   computed: {
     balloonTemplate() {
-      return 
-        `
-          <h5>${this.kvant.name}</h5>
-          <h6>${this.kvant.adress}</h6>
-          <p>${this.kvant.coords}</p>
-          <h6>${this.kvant.phone}</h6>
-        `
+      return `
+        <h5>${this.kvant.name}</h5>
+        <h6>${this.kvant.adress}</h6>
+        <p>${this.kvant.coords}</p>
+        <h6>${this.kvant.phone}</h6>
+        <a href="${this.kvant.site}">Перейти на сайт</a>
+      `
     }
   },
   components: {
