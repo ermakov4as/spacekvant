@@ -6,6 +6,7 @@ export default {
   isWrongPassword: false,
   isNotName: false,
   name: '',
+  oauthToken: 'AgAAAAA_chJxAAZGwiBoBRC2AEPfjsgLHJiIGGs', // TODO:
   auth() {
     if (this.password === '115' && this.name) {
       this.isReg = true

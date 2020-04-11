@@ -7,6 +7,7 @@ import _ from 'lodash'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import '@mdi/font/css/materialdesignicons.css'
 
 import Notifications from 'vue-notification'
 import VueGlobalVar from 'vue-global-var'
@@ -48,5 +49,8 @@ Vue.config.productionTip = false
 new Vue({
   router,
   vuetify,
+  icons: {
+    iconfont: 'mdi',
+  },
   render: h => h(App),
 }).$mount('#app')

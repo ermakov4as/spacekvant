@@ -2,7 +2,7 @@
   <div>
     <template v-if="user.isReg">
       <h1>Spacekvant</h1>
-      <Files></Files>
+      <Files :path="'/'"></Files>
       <Map></Map>
     </template>
 
