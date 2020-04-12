@@ -5,5 +5,6 @@ import Voln from './Algoritms/Voln'
 import Poten from './Algoritms/Poten'
 import DeikAstar from './Algoritms/DeikAstar'
 import Alert from './Alert'
+import Disk from './Disk'
 
-export { Algor, Pole, User, Voln, Poten, DeikAstar, Alert }
+export { Algor, Pole, User, Voln, Poten, DeikAstar, Alert, Disk }
