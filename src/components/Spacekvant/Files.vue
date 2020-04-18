@@ -3,9 +3,9 @@
     <FolderName @folderCreated="folderCreated" />
 
     <!-- <v-card max-width="800" class="mx-auto"> -->
-    <v-card max-width="1200">
+    <v-card max-width="1000">
       <v-toolbar v-if="path==='/'" color="light-blue" dark>
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
+        <img src="@/assets/YandexDisk.png" class="ydisk" alt="" />
         <v-toolbar-title>Документы</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon>
@@ -24,8 +24,18 @@
   
           <v-list-item-content>
             <v-list-item-title class="folderControlPanel">
-              <!-- <b-button v-b-modal.modal-4 variant="outline-primary">Создать папку</b-button> -->
-              <b-button variant="outline-primary" @click.stop="createNewFolder()">Создать папку</b-button>
+              <b-button variant="outline-primary" class="createFolderBtn" @click.stop="createNewFolder()">Создать папку</b-button>
+              <label class="btn chooseFileBtn btn-outline-success">
+                Выбрать файл
+                <input type="file" style="display: none;" @change="prepareFileToUpload($event)">
+              </label>
+              <b-button  
+                :variant="isUploadingReady ? 'outline-success' : 'outline-secondary'" 
+                @click.stop="uploadFile()" 
+                :disabled="!isUploadingReady"
+              >
+                <v-icon :style="`color: ${isUploadingReady ? 'green' : 'gray'};`">mdi-cloud-upload-outline</v-icon>
+              </b-button>
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -43,6 +53,9 @@
     
             <v-list-item-content>
               <v-list-item-title v-text="item.name"></v-list-item-title>
+              <v-btn icon @click.stop="deleteItem(item.path.slice(5))" class="deleteFolder">
+                <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
+              </v-btn>
               <v-list-item-subtitle v-text="item.modified.slice(0, 10)"></v-list-item-subtitle>
               <Files v-if="openedChildFolders.includes(item.resource_id)" :path="item.path.slice(5)" />
             </v-list-item-content>
@@ -66,7 +79,12 @@
     
             <v-list-item-action>
               <v-btn icon>
-                <v-icon color="grey lighten-1">mdi-information</v-icon>
+                <v-icon color="green lighten-1">mdi-download</v-icon>
+              </v-btn>
+            </v-list-item-action>
+            <v-list-item-action>
+              <v-btn icon @click="deleteItem(item.path.slice(5), item.name, item.type)">
+                <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
             </v-list-item-action>
           </template>
@@ -79,7 +97,7 @@
 <script>
 import Files from './Files'
 import FolderName from '@/components/Spacekvant/Modal/FolderName'
-import { HTTP } from '@/http-common'
+import { HTTP, HTTP_UPLOAD } from '@/http-common'
 import xor from 'lodash/xor'
 
 export default {
@@ -98,7 +116,10 @@ export default {
       },
       yandexDisk: [],
       oauthToken: 'AgAAAAAGCC-jAAZEHmVxYwnlbkW6tBLUKiolJjk',
-      openedChildFolders: []
+      openedChildFolders: [],
+      uploading_file: null,
+      file_url: null,
+      isUploadingReady: false
     }
   },
   methods: {
@@ -122,7 +143,104 @@ export default {
     },
     folderCreated() {
       this.getDiskData(this.path)
-    }
+    },
+    prepareFileToUpload(event) {
+      if (event.target.files[0]) {
+        let reader = new FileReader()
+        let app = this
+        app.uploading_file = event.target.files[0]
+        reader.readAsDataURL(event.target.files[0])
+        let query = ''
+        if (this.path !== '/') {
+          query = `?path=${this.path}/${this.uploading_file.name}`
+        } else {
+          query = `?path=/${this.uploading_file.name}`
+        }
+        /* let query = `?path=${this.path}/${this.uploading_file.name}` */
+        HTTP.get(`/disk/resources/upload${query}`)
+            .then((response) => {
+              this.file_url = response.data.href
+              this.isUploadingReady = true
+              this.$notify({
+                group: 'foo',
+                type: "success",
+                title: 'Файл готов к загрузке'
+              })
+            })
+            .catch((error) => {
+              console.log(error.response)
+              if (error.response.status === 409) {
+                this.$notify({
+                  group: 'foo',
+                  type: "error",
+                  title: 'Ошибка загрузки',
+                  text: 'Файл с таким именем уже существует'
+                })
+              } else {
+                this.$notify({
+                  group: 'foo',
+                  type: "error",
+                  title: 'Произошла ошибка',
+                  text: 'Sorry'
+                })
+              }
+            })
+      }
+    },
+    uploadFile() {
+      if (this.uploading_file) {
+        this.$notify({
+          group: 'foo',
+          type: "warn",
+          title: 'Пожалуйста, подождите',
+          text: 'Загрузка файла на сервер'
+        })
+        if (this.uploading_file.size > 3000000) {
+          this.$notify({
+            group: 'foo',
+            type: "warn",
+            title: 'Большой файл',
+            text: 'Ожидание может оказаться дольше обычного'
+          })
+        }
+        let formData = new FormData()
+        formData.append("file", this.uploading_file)
+        let query = `?path=${this.path}&url=${this.file_url}`
+        HTTP_UPLOAD.post(this.file_url, formData)
+            .then((response) => {
+              this.$notify({
+                group: 'foo',
+                type: "success",
+                title: 'Успешно загружено',
+                text: 'Изображение загружено на сервер'
+              })
+              this.file_url = null
+              this.isUploadingReady = false
+              this.getDiskData(this.path)
+            })
+            .catch((error) => {
+              console.log(error)
+              this.$notify({
+                group: 'foo',
+                type: "error",
+                title: 'Произошла ошибка',
+                text: 'Sorry'
+              })
+            })
+      }
+    },
+    deleteItem(_path, name, type) {
+      // TODO: vuetify -> v-dialog
+      let query = '?path=' + _path
+      HTTP.delete(`/disk/resources${query}`)
+          .then(response => {
+            console.log(response)
+            this.getDiskData(this.path)
+          })
+          .catch(error => {
+            console.log(error)
+          })
+    },
   },
   created() {
     this.getDiskData(this.path)
@@ -140,5 +258,26 @@ export default {
 .folderControlPanel {
   padding-left: 15px;
   padding-right: 15px;
+}
+.createFolderBtn {
+  margin-right: 60px;
+}
+.chooseFileBtn {
+  margin: 0;
+  margin-right: 8px;
+}
+.chooseFileBtn:hover {
+  cursor: pointer;
+}
+.ydisk {
+  margin-left: auto;
+  margin-right: 15px;
+  height: 38px;
+  width: 38px;
+}
+.deleteFolder {
+  position: absolute;
+  right: 16px;
+  top: 18px;
 }
 </style>

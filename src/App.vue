@@ -3,6 +3,7 @@
     <v-app-bar app>
       <Header />
     </v-app-bar>
+    <notifications group="foo" />
     <v-content>
       <ModalAuth />
       <Authors />

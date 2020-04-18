@@ -34,6 +34,7 @@ export default {
       HTTP.put(`/disk/resources${query}`)
           .then(response => {
             console.log(response)
+            this.newFolderName = disk.baseFolderName
             this.$bvModal.hide('modal-4')
             this.$emit('folderCreated')
           })

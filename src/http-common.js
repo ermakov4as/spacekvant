@@ -14,6 +14,14 @@ export const HTTP = axios.create({
     }
 });
 
+// HTTP запрос для загрузки файла
+export const HTTP_UPLOAD = axios.create({
+    headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+});
+
 // Стандартный HTTP запрос для загрузки
 /* export const HTTP_UPLOAD = axios.create({
     baseURL: API_URL,

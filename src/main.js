@@ -31,6 +31,13 @@ Vue.use(VueGlobalVar, {
           text: msg
         })
       },
+      warn: msg => {
+        Vue.notify({
+          group: 'main',
+          text: msg,
+          type: 'warn'
+        })
+      },
       error: msg => {
         Vue.notify({
           group: 'main',
