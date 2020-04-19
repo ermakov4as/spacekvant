@@ -22,16 +22,6 @@ export const HTTP_UPLOAD = axios.create({
   }
 })
 
-// HTTP запрос для скачивания файла
-export const HTTP_DOWNLOAD = axios.create({
-  /* responseType: 'blob', */
-  headers: {
-    "Accept": "application/json",
-    "Content-Type": "application/json", //"application/x-www-form-urlencoded",
-    "Authorization": `OAuth ${User.oauthToken}`
-  }
-})
-
 // Действия при ошибки авторизации
 HTTP.interceptors.response.use(null, function(error) {
   if (error.response.status === 401 || error.response.status === 403) {
