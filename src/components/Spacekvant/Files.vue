@@ -8,11 +8,11 @@
         <img src="@/assets/YandexDisk.png" class="ydisk" alt="" />
         <v-toolbar-title>Документы</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
+        <v-btn v-if="badInetMode" icon @click.stop="badInetMode = false" title="Выключить режим плохого интернета">
+          <v-icon>mdi-network-strength-outline</v-icon>
         </v-btn>
-        <v-btn icon>
-          <v-icon>mdi-view-module</v-icon>
+        <v-btn v-else icon @click.stop="badInetMode = true" title="Включить режим плохого интернета при скачивании файлов">
+          <v-icon>mdi-network-strength-3</v-icon>
         </v-btn>
       </v-toolbar>
       <v-list two-line subheader>
@@ -78,29 +78,15 @@
             </v-list-item-content>
     
             <v-list-item-action>
-              <v-btn icon>
+              <v-btn icon @click.stop="downloadFile(item.path.slice(5))">
                 <v-icon color="green lighten-1">mdi-download</v-icon>
               </v-btn>
             </v-list-item-action>
             <v-list-item-action>
-              <v-btn icon @click="preDeleteItem(item.path.slice(5), item.name, item.type)">
+              <v-btn icon @click.stop="deleteItem(item.path.slice(5), item.name, item.type)">
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
             </v-list-item-action>
-
-            <!-- <v-dialog v-model="deleteConfirmDialog" width="500">
-              <v-card>
-                <v-card-title class="headline grey lighten-2" primary-title>
-                  Подтвердите удаление
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="primary" text @click="deleteConfirmDialog = false">Отмена</v-btn>
-                  <v-btn color="primary" text @click="dialog = false">Удалить</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog> -->
           </template>
         </v-list-item>
       </v-list>
@@ -111,8 +97,9 @@
 <script>
 import Files from './Files'
 import FolderName from '@/components/Spacekvant/Modal/FolderName'
-import { HTTP, HTTP_UPLOAD } from '@/http-common'
+import { HTTP, HTTP_UPLOAD, HTTP_DOWNLOAD } from '@/http-common'
 import xor from 'lodash/xor'
+import axios from 'axios' // TODO:
 
 export default {
   props: ['path'],
@@ -133,9 +120,8 @@ export default {
       openedChildFolders: [],
       uploading_file: null,
       file_url: null,
-      isUploadingReady: false/* ,
-      deleteConfirmDialog: false,
-      deleteConfirmPermission: false */
+      isUploadingReady: false,
+      badInetMode: false
     }
   },
   methods: {
@@ -177,7 +163,6 @@ export default {
         } else {
           query = `?path=/${this.uploading_file.name}`
         }
-        /* let query = `?path=${this.path}/${this.uploading_file.name}` */
         HTTP.get(`/disk/resources/upload${query}`)
             .then((response) => {
               this.file_url = response.data.href
@@ -202,7 +187,7 @@ export default {
                   group: 'foo',
                   type: "error",
                   title: 'Произошла ошибка',
-                  text: 'Sorry'
+                  text: `${error.response.data.message}`
                 })
               }
             })
@@ -250,7 +235,6 @@ export default {
       }
     },
     deleteItem(_path, name, type) {
-      // TODO: vuetify -> v-dialog
       let confirmDeleting = confirm(`Удалить ${type==='folder'?'паку':'файл'}?`)
       if (confirmDeleting) {
         let query = '?path=' + _path
@@ -272,6 +256,146 @@ export default {
               })
             })
       }
+    },
+    downloadFile(_path) {
+      let query = '?path=' + _path
+      HTTP.get(`/disk/resources/download${query}`)
+          .then(response => {
+            console.log(response.data) // TODO:
+            let downdoadUrl = response.data.href
+            // this.cross_download(downdoadUrl)
+            let downloadWindow
+            downloadWindow = window.open(downdoadUrl)
+            if (!this.badInetMode) {
+              setTimeout(() => {
+                if (downloadWindow) {
+                  downloadWindow.close()
+                  downloadWindow = null
+                }
+              }, 4)
+            }
+            // this.test4(downdoadUrl)
+            // this.test3(downdoadUrl)
+            // this.test2(downdoadUrl)
+            // this.get_file_url(downdoadUrl)
+            // this.openInNewTab(downdoadUrl)
+            /* const link = document.createElement('a')
+            link.href = downdoadUrl
+            // link.setAttribute('download', 'file.pdf'); //or any other extension
+            document.body.appendChild(link)
+            link.click() */
+            /* HTTP_DOWNLOAD.get(downdoadUrl)
+              .then(response => {
+                this.$notify({
+                  group: 'foo',
+                  type: "success",
+                  title: 'Скачивание файла началось'
+                })
+              })
+              .catch(error => {
+                console.log(error)
+                this.$notify({
+                  group: 'foo',
+                  type: "error",
+                  title: 'Произошла ошибка
+                })
+          }) */
+          })
+          .catch(error => {
+            this.$notify({
+              group: 'foo',
+              type: "error",
+              title: 'Произошла ошибка',
+              text: `${error.response.data.message}`
+            })
+          })
+    },
+    openInNewTab(href) {
+      Object.assign(document.createElement('spacekvant-download'), {
+        target: '_blank',
+        href,
+      }).click()
+    },
+    get_file_url(url) {
+      var link_url = document.createElement('a')
+      link_url.download = url.substring((url.lastIndexOf("/") + 1), url.length)
+      link_url.href = url
+      document.body.appendChild(link_url)
+      link_url.click()
+      document.body.removeChild(link_url)
+      link_url.delete()
+    },
+    test2(pdflink) {
+      var link = document.createElement('a')
+      //pdflink - путь к файлу
+      link.setAttribute('href', pdflink)
+      let pdfname = 'test'
+      //pdfname - имя файла для загрузки (как он будет называться у посетителя)
+      link.setAttribute('download', pdfname)
+      link.setAttribute('target','_blank')
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click();
+      document.body.removeChild(link)
+      window.top.close()
+    },
+    test3(sUrl) {
+      window.downloadFile = function(sUrl) {
+        window.open(sUrl, '_self')
+      }
+    },
+    cross_download(url, fileName='test') {
+      var req = new XMLHttpRequest();
+      req.open("GET", url, true);
+      req.responseType = "blob";
+      var __fileName = fileName;
+      req.onload = function (event) {
+        var blob = req.response;
+        console.log(blob)
+        var contentType = req.getResponseHeader("content-type");
+        if (window.navigator.msSaveOrOpenBlob) {
+          // Internet Explorer
+          window.navigator.msSaveOrOpenBlob(new Blob([blob], {type: contentType}), fileName);
+        } else {
+          var link = document.createElement('a');
+          document.body.appendChild(link);
+          link.download = __fileName;
+          link.href = window.URL.createObjectURL(blob);
+          link.click();
+          document.body.removeChild(link); //remove the link when done
+        }
+      };
+      req.send();
+    },
+    test4(url) {
+      $.ajax({
+        url,
+        dataType: 'binary',
+        xhrFields: {
+          'responseType': 'blob'
+        },
+        success: function(data, status, xhr) {
+          var blob = new Blob([data], {type: xhr.getResponseHeader('Content-Type')});
+          var link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = 'download.png';
+          link.click();
+        }
+      });
+    },
+    test() {
+      axios({
+        url: 'https://s110myt.storage.yandex.net/rdisk/4b9a7dfb901b6d84306b7329bb1ff9204cb6080da3901462537c2713d090799b/5e9ccb39/iVJ8xx-qw3D7RTW8Nc7hdutxhyQhIzyuibOraEU_L9x62fx5qV-fizgUFiy07BxyPwFHRATEHxNAI2qJTdTYXQ==?uid=1064440433&filename=favicon.png&disposition=attachment&hash=&limit=0&content_type=image%2Fpng&owner_uid=1064440433&fsize=32988&hid=09b0190337809a62970fa0a7b49d83e4&media_type=image&tknv=v2&etag=7887131607dfa12d07d8a30288290bf5&rtoken=SDowDIIYA9Tr&force_default=yes&ycrid=na-bc1d694b6d371e4708c9afcb3875e2da-downloader8e&ts=5a3abfbee8040&s=4bc6980e49bb0827f9909fbd9c7b61862dcf95d98647dd48d2876d45d2aacf68&pb=U2FsdGVkX1-OPqRvZKGuELxgjONhIpOHYpa7medAziW5I4Of6HxbjOj2e8QerMOVA7c7JUvTNXOOo77GOv6LQlu5UV42pXgODpQ-whGPT9c', //your url
+        method: 'GET',
+        responseType: 'blob', // important
+      })
+      //axios.get('https://s110myt.storage.yandex.net/rdisk/4b9a7dfb901b6d84306b7329bb1ff9204cb6080da3901462537c2713d090799b/5e9ccb39/iVJ8xx-qw3D7RTW8Nc7hdutxhyQhIzyuibOraEU_L9x62fx5qV-fizgUFiy07BxyPwFHRATEHxNAI2qJTdTYXQ==?uid=1064440433&filename=favicon.png&disposition=attachment&hash=&limit=0&content_type=image%2Fpng&owner_uid=1064440433&fsize=32988&hid=09b0190337809a62970fa0a7b49d83e4&media_type=image&tknv=v2&etag=7887131607dfa12d07d8a30288290bf5&rtoken=SDowDIIYA9Tr&force_default=yes&ycrid=na-bc1d694b6d371e4708c9afcb3875e2da-downloader8e&ts=5a3abfbee8040&s=4bc6980e49bb0827f9909fbd9c7b61862dcf95d98647dd48d2876d45d2aacf68&pb=U2FsdGVkX1-OPqRvZKGuELxgjONhIpOHYpa7medAziW5I4Of6HxbjOj2e8QerMOVA7c7JUvTNXOOo77GOv6LQlu5UV42pXgODpQ-whGPT9c')
+        .then(response => {
+          console.log(response)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     }
   },
   created() {
