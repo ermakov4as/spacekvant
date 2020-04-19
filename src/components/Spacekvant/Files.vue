@@ -83,10 +83,24 @@
               </v-btn>
             </v-list-item-action>
             <v-list-item-action>
-              <v-btn icon @click="deleteItem(item.path.slice(5), item.name, item.type)">
+              <v-btn icon @click="preDeleteItem(item.path.slice(5), item.name, item.type)">
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
             </v-list-item-action>
+
+            <!-- <v-dialog v-model="deleteConfirmDialog" width="500">
+              <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title>
+                  Подтвердите удаление
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="primary" text @click="deleteConfirmDialog = false">Отмена</v-btn>
+                  <v-btn color="primary" text @click="dialog = false">Удалить</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog> -->
           </template>
         </v-list-item>
       </v-list>
@@ -119,7 +133,9 @@ export default {
       openedChildFolders: [],
       uploading_file: null,
       file_url: null,
-      isUploadingReady: false
+      isUploadingReady: false/* ,
+      deleteConfirmDialog: false,
+      deleteConfirmPermission: false */
     }
   },
   methods: {
@@ -127,11 +143,16 @@ export default {
       let query = '?path=' + _path
       HTTP.get(`/disk/resources${query}`)
           .then(response => {
-            console.log(response) // TODO: <= 20
+            // TODO: <= 20
             this.yandexDisk = response.data._embedded.items
           })
           .catch(error => {
-            console.log(error)
+            this.$notify({
+              group: 'foo',
+              type: "error",
+              title: 'Произошла ошибка',
+              text: `${error.response.data.message}`
+            })
           })
     },
     toggleOpenFolder(resource_id) {
@@ -212,35 +233,46 @@ export default {
                 group: 'foo',
                 type: "success",
                 title: 'Успешно загружено',
-                text: 'Изображение загружено на сервер'
+                text: 'Файл загружен на сервер'
               })
               this.file_url = null
               this.isUploadingReady = false
               this.getDiskData(this.path)
             })
             .catch((error) => {
-              console.log(error)
               this.$notify({
                 group: 'foo',
                 type: "error",
                 title: 'Произошла ошибка',
-                text: 'Sorry'
+                text: `${error.response.data.message}`
               })
             })
       }
     },
     deleteItem(_path, name, type) {
       // TODO: vuetify -> v-dialog
-      let query = '?path=' + _path
-      HTTP.delete(`/disk/resources${query}`)
-          .then(response => {
-            console.log(response)
-            this.getDiskData(this.path)
-          })
-          .catch(error => {
-            console.log(error)
-          })
-    },
+      let confirmDeleting = confirm(`Удалить ${type==='folder'?'паку':'файл'}?`)
+      if (confirmDeleting) {
+        let query = '?path=' + _path
+        HTTP.delete(`/disk/resources${query}`)
+            .then(response => {
+              this.getDiskData(this.path)
+              this.$notify({
+                group: 'foo',
+                type: "success",
+                title: 'Успешно удалено'
+              })
+            })
+            .catch(error => {
+              this.$notify({
+                group: 'foo',
+                type: "error",
+                title: 'Произошла ошибка',
+                text: `${error.response.data.message}`
+              })
+            })
+      }
+    }
   },
   created() {
     this.getDiskData(this.path)
