@@ -12,7 +12,7 @@ import '@mdi/font/css/materialdesignicons.css'
 import Notifications from 'vue-notification'
 import VueGlobalVar from 'vue-global-var'
 import vuetify from './plugins/vuetify'
-import { Algor, Pole, User, Voln, Poten, DeikAstar, Alert, Disk } from '@/models'
+import { Algor, Pole, User, Voln, Poten, DeikAstar, Alert, Disk, Metro } from '@/models'
 
 Vue.use(VueGlobalVar, {
   globals: {
@@ -24,6 +24,7 @@ Vue.use(VueGlobalVar, {
     deikAstar: DeikAstar,
     alert: Alert,
     disk: Disk,
+    metro: Metro,
     $ntf: {
       success: msg => {
         Vue.notify({
