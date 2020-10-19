@@ -5,7 +5,8 @@
       <h1 v-else-if="user.kvant==='aero'">Аэроквантум</h1>
       <FilesSpace v-if="user.kvant==='space'" :path="'/'"></FilesSpace>
       <FilesAero v-if="user.kvant==='aero'" :path="'/'"></FilesAero>
-      <!-- <Map></Map> -->
+      <MapSpace v-if="user.kvant==='space'"></MapSpace>
+      <MapAero v-if="user.kvant==='aero'"></MapAero>
     </template>
 
     <template v-else>
@@ -17,13 +18,15 @@
 <script>
 import FilesSpace from '@/components/AeroSpace/FilesSpace'
 import FilesAero from '@/components/AeroSpace/FilesAero'
-import Map from '@/components/AeroSpace/Map'
+import MapSpace from '@/components/AeroSpace/MapSpace'
+import MapAero from '@/components/AeroSpace/MapAero'
 
 export default {
   components: {
     FilesSpace,
     FilesAero,
-    Map
+    MapSpace,
+    MapAero
   }
 }
 </script>

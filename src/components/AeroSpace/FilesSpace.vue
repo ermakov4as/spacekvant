@@ -53,7 +53,7 @@
     
             <v-list-item-content>
               <v-list-item-title v-text="item.name"></v-list-item-title>
-              <v-btn icon @click.stop="deleteItem(item.path.slice(5))" class="deleteFolder">
+              <v-btn v-if="user.isAdmin" icon @click.stop="deleteItem(item.path.slice(5))" class="deleteFolder">
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
               <v-list-item-subtitle v-text="item.modified.slice(0, 10)"></v-list-item-subtitle>
@@ -83,7 +83,7 @@
               </v-btn>
             </v-list-item-action>
             <v-list-item-action>
-              <v-btn icon @click.stop="deleteItem(item.path.slice(5), item.name, item.type)">
+              <v-btn v-if="user.isAdmin" icon @click.stop="deleteItem(item.path.slice(5), item.name, item.type)">
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
             </v-list-item-action>

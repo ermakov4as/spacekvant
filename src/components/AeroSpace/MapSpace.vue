@@ -6,6 +6,7 @@
         v-for="kvant in kvantMapData"
         :key="kvant.id"
         :kvant="kvant"
+        :aerospace="'space'"
       />
     </yandex-map>
   </div>
@@ -14,7 +15,7 @@
 <script>
 import { yandexMap } from 'vue-yandex-maps'
 import MapMarker from './MapMarker'
-import kvantData from '@/utils/kvantData'
+import kvantData from '@/utils/spaceKvantData'
 
 export default {
   data() {
