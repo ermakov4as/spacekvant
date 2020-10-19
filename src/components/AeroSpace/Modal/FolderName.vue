@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { HTTP } from '@/http-common'
+import { HTTP_AERO, HTTP_SPACE } from '@/http-common'
 
 export default {
   props: ['path'],
@@ -31,7 +31,8 @@ export default {
         query = `?path=${this.newFolderName}`
       }
       console.log(query)
-      HTTP.put(`/disk/resources${query}`)
+      if (user.kvant === 'aero') {
+        HTTP_AERO.put(`/disk/resources${query}`)
           .then(response => {
             console.log(response)
             this.newFolderName = disk.baseFolderName
@@ -44,6 +45,21 @@ export default {
               this.isDublicatedName = true
             }
           })
+      } else if (user.kvant === 'space') {
+        HTTP_SPACE.put(`/disk/resources${query}`)
+          .then(response => {
+            console.log(response)
+            this.newFolderName = disk.baseFolderName
+            this.$bvModal.hide('modal-4')
+            this.$emit('folderCreated')
+          })
+          .catch(error => {
+            console.log(error)
+            if (error.response.status === 409) {
+              this.isDublicatedName = true
+            }
+          })
+      }
     }
   },
   watch: {

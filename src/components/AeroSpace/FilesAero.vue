@@ -1,6 +1,6 @@
 <template>
   <div :class="{childFolder: path!=='/'}">
-    <FolderName @folderCreated="folderCreated" />
+    <FolderName @folderCreated="folderCreated"/>
 
     <!-- <v-card max-width="800" class="mx-auto"> -->
     <v-card max-width="1000">
@@ -57,7 +57,7 @@
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
               <v-list-item-subtitle v-text="item.modified.slice(0, 10)"></v-list-item-subtitle>
-              <Files v-if="openedChildFolders.includes(item.resource_id)" :path="item.path.slice(5)" />
+              <FilesAero v-if="openedChildFolders.includes(item.resource_id)" :path="item.path.slice(5)" />
             </v-list-item-content>
 
           </template>  
@@ -95,16 +95,16 @@
 </template>
 
 <script>
-import Files from './Files'
-import FolderName from '@/components/Spacekvant/Modal/FolderName'
-import { HTTP, HTTP_UPLOAD } from '@/http-common'
+import FilesAero from './FilesAero'
+import FolderName from '@/components/AeroSpace/Modal/FolderName'
+import { HTTP_AERO, HTTP_UPLOAD } from '@/http-common'
 import xor from 'lodash/xor'
 
 export default {
   props: ['path'],
-  name: 'Files',
+  name: 'FilesAero',
   components: {
-    Files,
+    FilesAero,
     FolderName
   },
   data() {
@@ -115,7 +115,6 @@ export default {
         file: 'blue white--text'
       },
       yandexDisk: [],
-      oauthToken: 'AgAAAAAGCC-jAAZEHmVxYwnlbkW6tBLUKiolJjk',
       openedChildFolders: [],
       uploading_file: null,
       file_url: null,
@@ -124,21 +123,22 @@ export default {
     }
   },
   methods: {
+    // FIXME: сейчас дублируются запросы под разные токены (aero/space) - надо придумать, как привести в нормальный вид
     getDiskData(_path) {
       let query = '?path=' + _path
-      HTTP.get(`/disk/resources${query}`)
-          .then(response => {
-            // TODO: <= 20
-            this.yandexDisk = response.data._embedded.items
+      HTTP_AERO.get(`/disk/resources${query}`)
+        .then(response => {
+          // TODO: <= 20
+          this.yandexDisk = response.data._embedded.items
+        })
+        .catch(error => {
+          this.$notify({
+            group: 'foo',
+            type: "error",
+            title: 'Произошла ошибка AERO',
+            text: `${error.response.data.message}`
           })
-          .catch(error => {
-            this.$notify({
-              group: 'foo',
-              type: "error",
-              title: 'Произошла ошибка',
-              text: `${error.response.data.message}`
-            })
-          })
+        })
     },
     toggleOpenFolder(resource_id) {
       this.openedChildFolders = xor(this.openedChildFolders, [resource_id])
@@ -162,34 +162,34 @@ export default {
         } else {
           query = `?path=/${this.uploading_file.name}`
         }
-        HTTP.get(`/disk/resources/upload${query}`)
-            .then((response) => {
-              this.file_url = response.data.href
-              this.isUploadingReady = true
+        HTTP_AERO.get(`/disk/resources/upload${query}`)
+          .then((response) => {
+            this.file_url = response.data.href
+            this.isUploadingReady = true
+            this.$notify({
+              group: 'foo',
+              type: "success",
+              title: 'Файл готов к загрузке'
+            })
+          })
+          .catch((error) => {
+            console.log(error.response)
+            if (error.response.status === 409) {
               this.$notify({
                 group: 'foo',
-                type: "success",
-                title: 'Файл готов к загрузке'
+                type: "error",
+                title: 'Ошибка загрузки',
+                text: 'Файл с таким именем уже существует'
               })
-            })
-            .catch((error) => {
-              console.log(error.response)
-              if (error.response.status === 409) {
-                this.$notify({
-                  group: 'foo',
-                  type: "error",
-                  title: 'Ошибка загрузки',
-                  text: 'Файл с таким именем уже существует'
-                })
-              } else {
-                this.$notify({
-                  group: 'foo',
-                  type: "error",
-                  title: 'Произошла ошибка',
-                  text: `${error.response.data.message}`
-                })
-              }
-            })
+            } else {
+              this.$notify({
+                group: 'foo',
+                type: "error",
+                title: 'Произошла ошибка',
+                text: `${error.response.data.message}`
+              })
+            }
+          })
       }
     },
     uploadFile() {
@@ -237,45 +237,14 @@ export default {
       let confirmDeleting = confirm(`Удалить ${type==='folder'?'паку':'файл'}?`)
       if (confirmDeleting) {
         let query = '?path=' + _path
-        HTTP.delete(`/disk/resources${query}`)
-            .then(response => {
-              this.getDiskData(this.path)
-              this.$notify({
-                group: 'foo',
-                type: "success",
-                title: 'Успешно удалено'
-              })
-            })
-            .catch(error => {
-              this.$notify({
-                group: 'foo',
-                type: "error",
-                title: 'Произошла ошибка',
-                text: `${error.response.data.message}`
-              })
-            })
-      }
-    },
-    downloadFile(_path) {
-      let query = '?path=' + _path
-      HTTP.get(`/disk/resources/download${query}`)
+        HTTP_AERO.delete(`/disk/resources${query}`)
           .then(response => {
-            let downdoadUrl = response.data.href
-            let downloadWindow
-            downloadWindow = window.open(downdoadUrl)
+            this.getDiskData(this.path)
             this.$notify({
               group: 'foo',
-              type: "warn",
-              title: 'Пробуем скачать файл'
+              type: "success",
+              title: 'Успешно удалено'
             })
-            if (!this.badInetMode) {
-              setTimeout(() => {
-                if (downloadWindow) {
-                  downloadWindow.close()
-                  downloadWindow = null
-                }
-              }, 4)
-            }
           })
           .catch(error => {
             this.$notify({
@@ -285,6 +254,37 @@ export default {
               text: `${error.response.data.message}`
             })
           })
+      }
+    },
+    downloadFile(_path) {
+      let query = '?path=' + _path
+      HTTP_AERO.get(`/disk/resources/download${query}`)
+        .then(response => {
+          let downdoadUrl = response.data.href
+          let downloadWindow
+          downloadWindow = window.open(downdoadUrl)
+          this.$notify({
+            group: 'foo',
+            type: "warn",
+            title: 'Пробуем скачать файл'
+          })
+          if (!this.badInetMode) {
+            setTimeout(() => {
+              if (downloadWindow) {
+                downloadWindow.close()
+                downloadWindow = null
+              }
+            }, 4)
+          }
+        })
+        .catch(error => {
+          this.$notify({
+            group: 'foo',
+            type: "error",
+            title: 'Произошла ошибка',
+            text: `${error.response.data.message}`
+          })
+        })
     }
   },
   created() {

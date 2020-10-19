@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Spacekvant from '@/views/Spacekvant.vue'
+import AeroSpace from '@/views/AeroSpace.vue'
 
 Vue.use(Router)
 
@@ -10,8 +10,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'spacekvant',
-      component: Spacekvant
+      name: 'aerospace',
+      component: AeroSpace
     },
     {
       path: '/algoritm',

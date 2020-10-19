@@ -1,9 +1,18 @@
 <template>
   <b-row class="headerRow">
-    <b-col cols="8">
+    <b-col cols="3">
       <router-link to="/">Главная</router-link> |
       <router-link to="/algoritm">Алгоритмы</router-link> |
       <router-link to="/about">Справка</router-link>
+    </b-col>
+    <b-col cols="2">
+      <p v-if="user.isAdmin">Admin mode</p>
+    </b-col>
+    <b-col cols="3">
+      <v-btn-toggle v-if="user.isReg" v-model="user.kvant" mandatory dense @change="user.fixKvant()">
+        <v-btn value="aero"> АЭРО </v-btn>
+        <v-btn value="space"> КОСМО </v-btn>
+      </v-btn-toggle>
     </b-col>
     <b-col cols="4" class="loginGroup">
       <b-button v-if="!user.isReg" v-b-modal.modal-1 variant="outline-primary" class="logout">Войти</b-button>

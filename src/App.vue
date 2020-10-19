@@ -4,12 +4,12 @@
       <Header />
     </v-app-bar>
     <notifications group="foo" />
-    <v-content>
+    <v-main>
       <ModalAuth />
       <Authors />
       <Alert />
       <router-view/>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 

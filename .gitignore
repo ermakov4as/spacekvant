@@ -3,6 +3,7 @@ node_modules
 /dist
 
 /src/views/About.vue
+/src/test space
 
 # local env files
 .env.local
