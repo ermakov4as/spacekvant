@@ -25,7 +25,7 @@
           <v-list-item-content>
             <v-list-item-title class="folderControlPanel">
               <b-button variant="outline-primary" class="createFolderBtn" @click.stop="createNewFolder()">Создать папку</b-button>
-              <label class="btn chooseFileBtn btn-outline-success">
+              <label class="btn chooseFileBtn btn-outline-success" @click.stop="">
                 Выбрать файл
                 <input type="file" style="display: none;" @change="prepareFileToUpload($event)">
               </label>
@@ -57,7 +57,7 @@
                 <v-icon color="red lighten-1">mdi-delete-circle-outline</v-icon>
               </v-btn>
               <v-list-item-subtitle v-text="item.modified.slice(0, 10)"></v-list-item-subtitle>
-              <FilesAero v-if="openedChildFolders.includes(item.resource_id)" :path="item.path.slice(5)" />
+              <FilesAero v-show="openedChildFolders.includes(item.resource_id)" :path="item.path.slice(5)" />
             </v-list-item-content>
 
           </template>  
