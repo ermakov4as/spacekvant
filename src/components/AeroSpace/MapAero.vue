@@ -22,7 +22,7 @@ export default {
     return {
       minWidthForNormalZoom: 1500,
       kvantMapData: [],
-      mapCenterCoords: [53.714468, 90.713384],
+      mapCenterCoords: [53.714468, 86.713384],
       zoom: 4,
       settings: {
         apiKey: '63c6b7dc-bb35-4871-8f15-86314a229b11', // TODO:
